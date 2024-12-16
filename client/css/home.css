@@ -1,0 +1,85 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Raleway', sans-serif;
+}
+
+body {
+    background-image: url('../assets/mainphoto.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+.advent-pro {
+    font-family: "Advent Pro", serif;
+    font-optical-sizing: auto;
+    font-weight: 650;
+    font-style: normal;
+    font-variation-settings:
+        "wdth" 100;
+    font-size: 110px;
+    color: rgb(38, 39, 52);
+}
+
+.raleway{
+    font-family: "Raleway", serif;
+    font-size: 15px;
+    padding-left: 5%;
+}
+
+.nunito {
+    font-family: "Nunito", sans-serif;
+    font-optical-sizing: auto;
+  }
+
+#home{
+    padding-left: 20%;
+    padding-top: 3%;
+}
+
+#context{
+    font-family: "Advent Pro", serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: 20px;
+    color: rgb(32, 29, 29);
+}
+
+.buttons{
+    margin-left: 5%;
+    margin-top: 2%;
+}
+
+.is-custom {
+    background-color: rgb(38, 39, 52);
+    color: white;
+    border: none;
+}
+
+.is-custom .icon i {
+    color: white;
+    font-size: 80%;
+}
+
+.is-custom:hover {
+  color: white;
+}
+
+.is-dark {
+    background-color: rgb(43, 225, 146);
+    color: white;
+    border: none;
+}
+
+.is-dark .icon i {
+    color: white;
+    font-size: 80%;
+}
+
+.is-dark:hover {
+  color: white;
+}
