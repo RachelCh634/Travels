@@ -1,148 +1,21 @@
-const trips = [
-  {
-    driverName: 'Tamar Cohen',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Jerusalem',
-    endPoint: 'Tel Aviv',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 3,
-    cost: 50,
-    date: '2024-09-15',
-    time: '14:00'
-  },
-  {
-    driverName: 'Michal Man',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Jerusalem',
-    endPoint: 'Ashdod',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 2,
-    cost: 10,
-    date: '2024-12-13',
-    time: '15:30'
-  },
-  {
-    driverName: 'Yaara Levi',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Haifa',
-    endPoint: 'Beersheba',
-    vehicleType: 'Disabled Vehicle',
-    seatsAvailable: 2,
-    cost: 70,
-    date: '2024-12-30',
-    time: '16:30'
-  },
-  {
-    driverName: 'David Ben David',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Eilat',
-    endPoint: 'Tel Aviv',
-    vehicleType: 'Disabled Vehicle',
-    seatsAvailable: 1,
-    cost: 100,
-    date: '2024-12-28',
-    time: '17:30'
-  },
-  {
-    driverName: 'Rivka Golan',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Ashdod',
-    endPoint: 'Rishon LeZion',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 5,
-    cost: 40,
-    date: '2024-12-25',
-    time: '18:30'
-  },
-  {
-    driverName: 'Rivka Golan',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Ashdod',
-    endPoint: 'Rishon LeZion',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 5,
-    cost: 40,
-    date: '2024-12-15',
-    time: '19:30'
-  }, {
-    driverName: 'Avi Cohen',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Jerusalem',
-    endPoint: 'Tel Aviv',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 3,
-    cost: 50,
-    date: '2024-12-05',
-    time: '21:30'
-  },
-  {
-    driverName: 'Michal Man',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Jerusalem',
-    endPoint: 'Ashdod',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 2,
-    cost: 10,
-    date: '2024-12-05',
-    time: '20:30'
-  },
-  {
-    driverName: 'Yaara Levi',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Haifa',
-    endPoint: 'Beersheba',
-    vehicleType: 'Disabled Vehicle',
-    seatsAvailable: 2,
-    cost: 70,
-    date: '2024-12-18',
-    time: '17:30'
-  },
-  {
-    driverName: 'David Ben David',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Eilat',
-    endPoint: 'Tel Aviv',
-    vehicleType: 'Disabled Vehicle',
-    seatsAvailable: 1,
-    cost: 100,
-    date: '2024-12-12',
-    time: '10:30'
-  },
-  {
-    driverName: 'Rivka Golan',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Ashdod',
-    endPoint: 'Rishon LeZion',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 5,
-    cost: 40,
-    date: '2024-12-04',
-    time: '14:30'
-  },
-  {
-    driverName: 'Rivka Golan',
-    driverPhone: '0583202634',
-    driverEmail: 'Avi634@gmail.com',
-    startPoint: 'Ashdod',
-    endPoint: 'Rishon LeZion',
-    vehicleType: 'Regular Vehicle',
-    seatsAvailable: 5,
-    cost: 40,
-    date: '2024-12-08',
-    time: '19:30'
-  },
-];
+let trips = [];
+
+async function fetchTrips() {
+  try {
+    const response = await fetch('http://127.0.0.1:5000/travels/getAllTravels');
+
+    if (response.ok) {
+      const data = await response.json();
+      trips = data;
+      console.log(trips);
+      showTrips(trips);
+    } else {
+      console.error('Error fetching trips:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+}
 
 const cities = [
   "Jerusalem", "Tel Aviv", "Haifa", "Rishon Lezion", "Petah Tikva", "Ashdod", "Netanya",
@@ -155,7 +28,7 @@ const cities = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-  showTrips(trips);
+  fetchTrips(); // קריאה לפונקציה כשהדף נטען
 });
 
 function showTrips(trips) {
@@ -178,7 +51,7 @@ function showTrips(trips) {
       </h2>
       <div id="collapse-${index}" class="accordion-collapse collapse" aria-labelledby="heading-${index}" data-bs-parent="#trip-accordion-container">
       <div class="accordion-body">
-      <p><i class="bi bi-clock-fill"></i> <strong>Time:</strong> &nbsp; ${trip.date + " " + trip.time}</p>
+      <p><i class="bi bi-clock-fill"></i> <strong>Time:</strong> &nbsp; ${formatToNormalDate(trip.date, trip.time)}</p>
       <p><i class="fas fa-chair"></i> <strong>Seats Available:</strong> &nbsp;  ${trip.seatsAvailable}</p>
       <p><i class="fas fa-shekel-sign"></i> <strong>Cost:</strong> &nbsp; ${trip.cost}₪</p>
       <button class="btn btn-primary btn-sm d-flex align-items-center" style="background-color: rgb(79, 115, 137); color: white; border: none;" data-bs-toggle="modal" data-bs-target="#driverDetailsModal-${index}">
@@ -215,6 +88,8 @@ function showTrips(trips) {
       accordionContainer.appendChild(accordionItem);
     });
   };
+  displayTrips(trips);
+
 
   const paginateTrips = (trips) => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -268,6 +143,27 @@ function showTrips(trips) {
 
   paginateTrips(trips);
   displayPagination(trips);
+}
+
+
+function formatToNormalDate(dateString, timeString) {
+  const date = new Date(dateString);
+  if (isNaN(date)) {
+    console.error("Invalid date format:", dateString);
+    return "Invalid date";
+  }
+  const day = String(date.getDate()).padStart(2, '0'); 
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  const timeParts = timeString.split(" ");
+  const days = parseInt(timeParts[0]);
+  const hours = parseInt(timeParts[2]);
+  const minutes = parseInt(timeParts[4]);
+  date.setHours(date.getHours() + hours);
+  date.setMinutes(date.getMinutes() + minutes);
+  const formattedHours = String(date.getHours()).padStart(2, '0');
+  const formattedMinutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}/${month}/${year} ${formattedHours}:${formattedMinutes}`;
 }
 
 document.getElementById('openCardButton').addEventListener('click', function () {
@@ -470,11 +366,11 @@ document.querySelector("form").addEventListener("submit", function (event) {
       const overlay = document.getElementById('overlay');
       const travelAdded = document.getElementById('travelAdded')
       travelAdded.style.display = 'block';
-      setTimeout(function() {
-        card.style.display = 'none'; 
+      setTimeout(function () {
+        card.style.display = 'none';
         overlay.style.display = 'none';
-        travelAdded.style.display = 'none'; 
-      }, 2000); 
+        travelAdded.style.display = 'none';
+      }, 2000);
     })
     .catch(error => {
       console.error('Error:', error);

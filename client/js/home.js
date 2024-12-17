@@ -14,7 +14,7 @@ function validateForm(event) {
 }
 
 function validateLoginForm(event) {
-    event.preventDefault(); 
+    event.preventDefault();
     const name = document.getElementById('loginName').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     if (!name || !password) {
@@ -23,6 +23,11 @@ function validateLoginForm(event) {
     }
     login();
     return false;
+}
+
+function clearLoginFields() {
+    document.getElementById('loginName').value = "";
+    document.getElementById('loginPassword').value = "";
 }
 
 async function login() {
@@ -48,6 +53,12 @@ async function login() {
         document.getElementById('loginForm').reset();
     } else {
         console.log('Failed to log in:', response.statusText);
+        const loginModal = document.getElementById('loginModal');
+        const modalInstance = bootstrap.Modal.getInstance(loginModal);
+        modalInstance.hide();
+        clearLoginFields()
+        const signUpModal = new bootstrap.Modal(document.getElementById('signUpModal'));
+        signUpModal.show();
     }
 }
 
@@ -92,7 +103,12 @@ async function addUser() {
             document.getElementById('signUpForm').reset();
             closesignUpModal();
         } else {
-            console.log('Failed to add user:', response.statusText);
+            const errorData = await response.json();
+            if (errorData.error === "Password already exists") {
+                alert("The password already exists. Please choose another one.");
+            } else {
+                console.log('Failed to add user:', response.statusText);
+            }
         }
     } catch (error) {
         console.error('Error occurred:', error);
