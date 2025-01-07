@@ -8,7 +8,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 travels_bp = Blueprint('travels', __name__)
 
-
 @travels_bp.route('/addTravel', methods=['POST'])
 def add_travel():
     try:
@@ -58,23 +57,6 @@ def add_travel():
         cursor = connection.cursor()
 
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS travels (
-                id SERIAL PRIMARY KEY,
-                source VARCHAR(255),
-                destination VARCHAR(255),
-                tripDate DATE,
-                tripTime TIME,
-                vehicleType VARCHAR(255),
-                seats INT,
-                isVolunteer VARCHAR(255),
-                price DECIMAL(10, 2),
-                driverId INT,
-                FOREIGN KEY (driverId) REFERENCES users(id)
-            )
-        """)
-        logging.debug("Table created or already exists")
-
-        cursor.execute("""
             INSERT INTO travels (source, destination, tripDate, tripTime, vehicleType, seats, isVolunteer, price, driverId) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (source, destination, tripDate, tripTime, vehicleType, seats, isVolunteer, price, driverId))
@@ -91,7 +73,6 @@ def add_travel():
     except Exception as e:
         logging.error(f"Error: {str(e)}")
         return jsonify({"error": str(e)}), 500
-
 
 
 @travels_bp.route('/getAllTravels', methods=['GET'])
@@ -116,7 +97,6 @@ def get_all_travels():
                 'cost': travel[8]
             }
 
-            # אם יש שדה מסוג timedelta, המרתו לפורמט קריא
             if isinstance(travel[4], timedelta):
                 time = travel[4]
                 days = time.days
