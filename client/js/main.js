@@ -175,8 +175,8 @@ function showTrips(trips) {
     tripsToDisplay.forEach((trip, index) => {
       const accordionItem = document.createElement('div');
       accordionItem.className = 'accordion-item';
-      accordionItem.innerHTML = 
-      `<h2 class="accordion-header" id="heading-${index}">
+      accordionItem.innerHTML =
+        `<h2 class="accordion-header" id="heading-${index}">
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${index}" aria-expanded="false" aria-controls="collapse-${index}">
       <i class="fas fa-car vehicle-icon"></i>
       ${trip.startPoint} <i class="fas fa-arrow-right mx-2"></i> ${trip.endPoint}
@@ -205,9 +205,13 @@ function showTrips(trips) {
         <p><i class="fas fa-user me-2"></i><strong>Name:</strong> ${trip.driverName}</p>
         <p><i class="fas fa-phone-alt me-2"></i><strong>Phone:</strong> ${trip.driverPhone}</p>
         <p><i class="fas fa-envelope me-2"></i><strong>Email:</strong> ${trip.driverEmail}</p>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#emailModal"">
-          <i class="fas fa-envelope me-2"></i> Send Email
-        </button>
+  <button 
+    class="btn btn-primary btn-sm" 
+    data-bs-toggle="modal" 
+    data-bs-target="#emailModal" 
+    data-travel-id="${trip.travel_id}">
+    <i class="fas fa-envelope me-2"></i> Send Email
+</button>
         <button class="btn btn-success btn-sm" onclick="window.location.href='tel:${trip.driverPhone}'">
           <i class="fas fa-phone me-2"></i> Call
         </button>
@@ -219,28 +223,34 @@ function showTrips(trips) {
       </div>
       </div>
       
-      <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="emailModalLabel">Send Email</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="emailForm">
-                        <div class="mb-3">
-                            <label for="message" class="form-label">Message</label>
-                            <textarea class="form-control" id="message" rows="6" required style="width: 100%"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="sendEmail()">Send Email</button>
-                </div>
+<div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailModalLabel">Send Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="emailForm">
+                    <textarea class="form-control" id="message" rows="6" required style="width: 100%"></textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="sendEmail()">Send Email</button>
             </div>
         </div>
-    </div>`;
+    </div>
+</div>
+`;
+      document.addEventListener('show.bs.modal', function (event) {
+        const modal = event.target;
+        const triggerButton = event.relatedTarget;
+        if (modal.id === 'emailModal' && triggerButton) {
+          const travelId = triggerButton.getAttribute('data-travel-id');
+          modal.setAttribute('data-travel-id', travelId);
+        }
+      });
       accordionContainer.appendChild(accordionItem);
     });
   };
@@ -305,9 +315,9 @@ function formatToNormalDate(dateString, timeString) {
   const date = new Date(dateString);
   if (isNaN(date)) {
     console.error("Invalid date format:", dateString);
-    return "Invalid date"; 
+    return "Invalid date";
   }
-  const day = String(date.getDate()).padStart(2, '0'); 
+  const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
   const timeParts = timeString.split(" ");
@@ -325,32 +335,149 @@ const sidebar = document.getElementById('sidebar');
 const menuToggle = document.getElementById('menuToggle');
 
 menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active'); 
+  sidebar.classList.toggle('active');
 });
 
-document.getElementById("closeSidebar").addEventListener("click", function() {
+document.getElementById("closeSidebar").addEventListener("click", function () {
   document.getElementById("sidebar").classList.remove("active");
 });
 
 function sendEmail() {
+  const emailModal = document.querySelector('#emailModal');
+  const travelId = emailModal.getAttribute('data-travel-id');
+  const message = document.querySelector('#message').value;
+  console.log('Travel ID:', travelId);
+  console.log('Message:', message);
+
+  const trip = trips.find(trip => trip.travel_id == travelId);
+  if (trip) {
+    console.log("Trip found:", trip);
+  } else {
+    console.log("No trip found with travel_id:", travelId);
+    return;
+  }
+
   const emailParams = {
     reply_to: 'T0527144636@example.com',
     from_name: 'Tamar Levi',
-    email_to: 'HAD4059@Gmail.com',
-    to_name: 'Rachel Chadad',
-    source: 'Tel Aviv',
-    destination: 'New York',
-    time: '2025-01-15 10:00:00',
-    message: 'This work!!!',
+    email_to: trip.driverEmail,
+    to_name: trip.driverName,
+    source: trip.startPoint,
+    destination: trip.endPoint,
+    time: formatToNormalDate(trip.date, trip.time),
+    message: message,
   };
+  console.log(emailParams);
 
   emailjs.send('service_c4mvmfr', 'template_zpo3cgc', emailParams)
-    .then(function(response) {
+    .then(function (response) {
       alert('Email sent successfully! 🎉');
       console.log('SUCCESS!', response.status, response.text);
-      document.getElementById('emailForm').reset();
-    }, function(error) {
+
+      const emailForm = document.getElementById('emailForm');
+      if (emailForm) {
+        emailForm.reset();
+      } else {
+        console.error('Email form not found!');
+      }
+
+      const modal = bootstrap.Modal.getInstance(emailModal);
+      modal.hide();
+    }, function (error) {
       alert('Failed to send email. 😢');
       console.error('FAILED...', error);
     });
 }
+
+
+function resetFilters() {
+  document.getElementById('source').selectedIndex = 0;
+  document.getElementById('destination').selectedIndex = 0;
+  document.getElementById('timeFilter').selectedIndex = 0;
+  document.getElementById('seats').value = 1;
+  document.getElementById('allVehicle').checked = true;
+  document.getElementById('volunteer').checked = false;
+  document.getElementById('price').value = 100;
+  document.getElementById('priceValue').textContent = "All";
+  showTrips(trips);
+}
+
+function handleResetButtonClick() {
+  const resetButton = document.getElementById('resetButton');
+  resetButton.addEventListener('click', resetFilters);
+}
+
+function collectFormData() {
+  const source = document.getElementById("addSource").value;
+  const destination = document.getElementById("addDestination").value;
+  const tripDate = document.getElementById("tripDate").value;
+  const tripTime = document.getElementById("tripTime").value;
+  const vehicleType = document.querySelector('input[name="addVehicleType"]:checked').value;
+  const seats = document.getElementById("addSeats").value;
+  const isVolunteer = document.querySelector('input[name="volunteerType"]:checked').value;
+  const price = document.getElementById("AddPrice").value;
+
+  return {
+    source,
+    destination,
+    tripDate,
+    tripTime,
+    vehicleType,
+    seats,
+    isVolunteer,
+    price: isVolunteer === "volunteer" ? 0 : price
+  };
+}
+
+function submitFormData(tripData) {
+  fetch('http://127.0.0.1:5000/travels/addTravel', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    },
+    body: JSON.stringify(tripData)
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Failed to add trip');
+      }
+    })
+    .then(data => handleSuccessfulSubmission(data))
+    .catch(error => handleSubmissionError(error));
+}
+
+function handleSuccessfulSubmission(data) {
+  console.log(data);
+  document.querySelector("form").reset();
+  const card = document.getElementById('tripCard');
+  const overlay = document.getElementById('overlay');
+  const travelAdded = document.getElementById('travelAdded');
+
+  travelAdded.style.display = 'block';
+  setTimeout(() => {
+    card.style.display = 'none';
+    overlay.style.display = 'none';
+    travelAdded.style.display = 'none';
+  }, 2000);
+}
+
+function handleSubmissionError(error) {
+  console.error('Error:', error);
+  alert('Failed to add trip');
+}
+
+function handleFormSubmit() {
+  document.querySelector("form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    const tripData = collectFormData();
+    submitFormData(tripData);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  handleResetButtonClick();
+  handleFormSubmit();
+});
