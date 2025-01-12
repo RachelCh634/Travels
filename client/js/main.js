@@ -342,14 +342,13 @@ document.getElementById("closeSidebar").addEventListener("click", function () {
   document.getElementById("sidebar").classList.remove("active");
 });
 
-function sendEmail() {
+async function sendEmail() {
   const emailModal = document.querySelector('#emailModal');
   const travelId = emailModal.getAttribute('data-travel-id');
   const message = document.querySelector('#message').value;
-  console.log('Travel ID:', travelId);
-  console.log('Message:', message);
-
   const trip = trips.find(trip => trip.travel_id == travelId);
+  const userDetails = await getCurrentUserDetails(); 
+
   if (trip) {
     console.log("Trip found:", trip);
   } else {
@@ -358,8 +357,8 @@ function sendEmail() {
   }
 
   const emailParams = {
-    reply_to: 'T0527144636@example.com',
-    from_name: 'Tamar Levi',
+    reply_to: userDetails.email,
+    from_name: userDetails.name,
     email_to: trip.driverEmail,
     to_name: trip.driverName,
     source: trip.startPoint,
@@ -388,7 +387,6 @@ function sendEmail() {
       console.error('FAILED...', error);
     });
 }
-
 
 function resetFilters() {
   document.getElementById('source').selectedIndex = 0;
@@ -481,3 +479,26 @@ document.addEventListener('DOMContentLoaded', function () {
   handleResetButtonClick();
   handleFormSubmit();
 });
+
+async function getCurrentUserDetails() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    console.error('Token is missing! Please log in again.');
+    return null;
+  }
+
+  const response = await fetch('http://127.0.0.1:5000/auth/getCurrentUserDetails', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+  });
+
+  if (response.ok) {
+    return await response.json();  
+  } else {
+    console.error('Failed to fetch user details');
+    return null;
+  }
+}
