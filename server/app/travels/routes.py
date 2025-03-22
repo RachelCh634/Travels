@@ -47,6 +47,7 @@ def add_travel():
         seats = data['seats']
         isVolunteer = data['isVolunteer']
         price = data['price']
+        travelDuration = data['travelDuration']
         try:
             driverId = int(user_id)
         except ValueError:
@@ -57,9 +58,9 @@ def add_travel():
         cursor = connection.cursor()
 
         cursor.execute("""
-            INSERT INTO travels (source, destination, tripDate, tripTime, vehicleType, seats, isVolunteer, price, driverId) 
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (source, destination, tripDate, tripTime, vehicleType, seats, isVolunteer, price, driverId))
+            INSERT INTO travels (source, destination, tripDate, tripTime, vehicleType, seats, isVolunteer, price, travelDuration, driverId) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (source, destination, tripDate, tripTime, vehicleType, seats, isVolunteer, price, travelDuration, driverId))
         logging.debug(f"Data inserted: {source}, {destination}, {tripDate}, {tripTime}, {vehicleType}, {seats}, "
                       f"{isVolunteer}, {price}, {driverId}")
 
@@ -94,7 +95,8 @@ def get_all_travels():
                 'time': travel[4],
                 'vehicleType': travel[5],
                 'seatsAvailable': travel[6],
-                'cost': travel[8]
+                'cost': travel[8],
+                'travelDuration': travel[10]
             }
 
             if isinstance(travel[4], timedelta):

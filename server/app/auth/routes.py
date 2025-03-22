@@ -5,8 +5,71 @@ from app.auth.passwords import hash_password
 from app.db import get_db_connection
 from app.auth.token import encode_auth_token, decode_auth_token
 import logging
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from app.auth.token import encode_auth_token
 logging.basicConfig(level = logging.DEBUG)
 auth_bp = Blueprint('auth', __name__)
+
+GOOGLE_CLIENT_ID = "625165215188-nc3v63edv5th9498g0en3jjk9h03p07u.apps.googleusercontent.com"
+
+
+@auth_bp.route('/googleLogin', methods=['POST'])
+def google_login():
+    print("I coming")
+    try:
+        data = request.get_json()
+        google_token = data.get("googleToken")
+
+        if not google_token:
+            return jsonify({"error": "Missing Google token"}), 400
+
+        idinfo = id_token.verify_oauth2_token(google_token, requests.Request(), GOOGLE_CLIENT_ID)
+
+        user_email = idinfo.get("email")
+        user_name = idinfo.get("name")
+        user_picture = idinfo.get("picture")
+
+        connection = get_db_connection()
+        cursor = connection.cursor(DictCursor)
+
+        cursor.execute("SELECT * FROM users WHERE email = %s", (user_email,))
+        user = cursor.fetchone()
+
+        if not user:
+            cursor.execute(
+                "INSERT INTO users (name, email, city, phone, password) VALUES (%s, %s, %s, %s, %s)",
+                (user_name, user_email, None, None, None)
+            )
+            connection.commit()
+
+            cursor.execute("SELECT * FROM users WHERE email = %s", (user_email,))
+            user = cursor.fetchone()
+
+        user_id = user["id"]
+        token = encode_auth_token(user_id)
+
+        cursor.close()
+        connection.close()
+
+
+        return jsonify({
+            "token": token,
+            "user": {
+                "id": user_id,
+                "name": user["name"],
+                "email": user["email"],
+                "city": user["city"],
+                "phone": user["phone"],
+                "picture": user_picture
+            }
+        }), 200
+
+    except ValueError:
+        return jsonify({"error": "Invalid Google token"}), 400
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @auth_bp.route('/addUser', methods=['POST'])
